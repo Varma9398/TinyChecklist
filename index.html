@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TinyChecklist Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --text: #1E293B;
+  --text-secondary: #64748B;
+  --text-muted: #94A3B8;
+  --task-bg: #F1F5F9;
+  --border: #E2E8F0;
+  --accent: #7C3AED;
+  --accent-light: #A78BFA;
+  --accent-hover: #6D28D9;
+  --success: #10B981;
+  --shadow: rgba(0, 0, 0, 0.05);
+  --shadow-hover: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+  --bg: #0F172A;
+  --card: #1E293B;
+  --text: #F1F5F9;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --task-bg: #334155;
+  --border: #475569;
+  --accent: #8B5CF6;
+  --accent-light: #A78BFA;
+  --accent-hover: #7C3AED;
+  --success: #34D399;
+  --shadow: rgba(0, 0, 0, 0.2);
+  --shadow-hover: rgba(0, 0, 0, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  min-height: 100vh;
+  margin: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+canvas#particles, canvas#confetti {
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+  z-index: -1;
+  pointer-events: none;
+}
+
+#checklist {
+  background: var(--card);
+  padding: 32px;
+  border-radius: 24px;
+  box-shadow: 0 20px 25px -5px var(--shadow), 0 10px 10px -5px var(--shadow);
+  width: 100%;
+  max-width: 480px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--border);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+h1 {
+  color: var(--text);
+  font-weight: 700;
+  font-size: 28px;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.025em;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.form-section {
+  margin-bottom: 28px;
+}
+
+.form-label {
+  display: block;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+#addForm { 
+  display: flex; 
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#taskInput { 
+  width: 100%;
+  padding: 12px 16px; 
+  border-radius: 12px; 
+  border: 2px solid var(--border); 
+  outline: none; 
+  font-size: 16px;
+  font-weight: 500;
+  background: var(--task-bg);
+  color: var(--text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#taskInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+#taskDescription {
+  width: 100%;
+  padding: 12px 16px; 
+  border-radius: 12px; 
+  border: 2px solid var(--border); 
+  outline: none; 
+  font-size: 14px;
+  background: var(--task-bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#taskDescription:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.add-button { 
+  padding: 14px 24px; 
+  border-radius: 12px; 
+  border: none; 
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%); 
+  color: white; 
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer; 
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px 0 rgba(124, 58, 237, 0.25);
+}
+
+.add-button:hover { 
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px 0 rgba(124, 58, 237, 0.35);
+  background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent) 100%);
+}
+
+.add-button:active {
+  transform: translateY(0);
+}
+
+.tasks-section {
+  margin-bottom: 28px;
+}
+
+.section-title {
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.task-count {
+  background: var(--accent);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  min-width: 20px;
+  text-align: center;
+}
+
+ul { 
+  list-style: none; 
+  padding: 0; 
+  margin: 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-state-text {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+li {
+  display: flex; 
+  align-items: flex-start; 
+  gap: 16px;
+  margin: 12px 0; 
+  padding: 18px; 
+  border-radius: 16px; 
+  background: var(--task-bg);
+  cursor: grab; 
+  box-shadow: 0 2px 8px var(--shadow);
+  transition: all 0.3s ease;
+  opacity: 0; 
+  transform: translateY(-10px);
+  border: 2px solid transparent;
+}
+
+li.show { 
+  opacity: 1; 
+  transform: translateY(0);
+}
+
+li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--shadow-hover);
+  border-color: var(--accent);
+}
+
+li.dragging { 
+  opacity: 0.7; 
+  transform: scale(1.02) rotate(2deg); 
+  box-shadow: 0 20px 40px var(--shadow-hover);
+  z-index: 1000;
+}
+
+li.checked { 
+  opacity: 0.6;
+}
+
+li.checked .task-content {
+  text-decoration: line-through;
+}
+
+.task-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.task-checkbox:hover {
+  border-color: var(--accent);
+}
+
+.task-checkbox.checked {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.task-checkbox.checked::after {
+  content: '✓';
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.task-content { 
+  flex: 1; 
+  cursor: pointer; 
+  transition: all 0.2s ease;
+  color: var(--text);
+}
+
+.task-title {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.task-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-top: 6px;
+}
+
+.task-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.delete-btn { 
+  background: none; 
+  border: none; 
+  cursor: pointer; 
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+  padding: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.delete-btn:hover { 
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+[data-theme="dark"] .delete-btn:hover {
+  background: rgba(220, 38, 38, 0.2);
+  color: #F87171;
+}
+
+.share-section { 
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+  margin-bottom: 24px;
+}
+
+.share-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.share-label {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.share-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.share-link {
+  flex: 1;
+  padding: 10px 12px;
+  background: var(--task-bg);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy-btn { 
+  padding: 10px 16px; 
+  border-radius: 8px; 
+  background: var(--accent); 
+  color: white; 
+  cursor: pointer; 
+  border: none; 
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.copy-btn:hover { 
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.copy-btn.active { 
+  animation: copySuccess 0.4s ease;
+  background: var(--success);
+}
+.top-bar {
+  position: absolute;
+  top: 16px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+  z-index: 10;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text);
+}
+
+.social a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+.social a:hover {
+  color: var(--accent);
+}
+
+.social-icon {
+  width: 18px;
+  height: 18px;
+  filter: grayscale(100%);
+  transition: filter 0.2s ease;
+}
+
+.social a:hover .social-icon {
+  filter: grayscale(0%);
+}
+
+@media (max-width: 500px) {
+  .top-bar {
+    padding: 0 20px;
+  }
+
+  .brand {
+    font-size: 16px;
+  }
+
+  .social span {
+    display: none; /* hide "Founder" text on small screens */
+  }
+}
+
+
+@keyframes copySuccess {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.theme-toggle { 
+  text-align: center;
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+}
+
+.theme-btn {
+  background: none;
+  border: 2px solid var(--border);
+  color: var(--text);
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.theme-btn.bounce { 
+  animation: themeBounce 0.5s ease;
+}
+
+@keyframes themeBounce {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-4px) scale(1.02); }
+  75% { transform: translateY(-2px); }
+}
+
+@media (max-width: 500px) {
+  body {
+    padding: 16px;
+  }
+  
+  #checklist { 
+    padding: 24px;
+    border-radius: 20px;
+  }
+  
+  h1 {
+    font-size: 24px;
+  }
+  
+  li { 
+    padding: 16px;
+    gap: 12px;
+  }
+  
+  .share-input-group {
+    flex-direction: column;
+  }
+  
+  .copy-btn {
+    align-self: stretch;
+    padding: 12px;
+  }
+}
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+<canvas id="confetti"></canvas>
+
+<div id="checklist">
+  <div class="header">
+    <h1>TinyChecklist Pro</h1>
+    <p class="subtitle">Organize your tasks with style and efficiency</p>
+  </div>
+
+  <div class="form-section">
+    <form id="addForm">
+      <div class="input-group">
+        <label class="form-label" for="taskInput">Task Name</label>
+        <input type="text" id="taskInput" required>
+        
+        <label class="form-label" for="taskDescription">Description</label>
+        <textarea id="taskDescription"></textarea>
+      </div>
+      <button type="submit" class="add-button">Add Task</button>
+    </form>
+  </div>
+
+  <div class="tasks-section">
+    <div class="section-title">
+      Tasks <span class="task-count" id="taskCount">0</span>
+    </div>
+    <ul id="tasks"></ul>
+    <div id="emptyState" class="empty-state">
+      <div class="empty-state-icon">📝</div>
+      <div class="empty-state-text">No tasks yet. Add your first task above!</div>
+    </div>
+  </div>
+
+  <div class="share-section">
+    <div class="share-container">
+      <label class="share-label">Share Your Checklist</label>
+      <div class="share-input-group">
+        <div class="share-link" id="shareLink">Generate a link by adding tasks...</div>
+        <button class="copy-btn" id="copyLink">Copy Link</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="theme-toggle">
+    <button class="theme-btn" id="themeToggle">
+      <span id="themeIcon">🌙</span>
+      <span id="themeText">Dark Mode</span>
+    </button>
+  </div>
+</div>
+
+<script>
+// ===== TinyChecklist Core =====
+const taskInput = document.getElementById('taskInput');
+const taskDescription = document.getElementById('taskDescription');
+const addForm = document.getElementById('addForm');
+const tasksUL = document.getElementById('tasks');
+const emptyState = document.getElementById('emptyState');
+const taskCount = document.getElementById('taskCount');
+const shareDiv = document.getElementById('shareLink');
+const copyBtn = document.getElementById('copyLink');
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const themeText = document.getElementById('themeText');
+
+let tasks = [];
+let draggedIndex = null;
+
+// Theme toggle
+let theme = localStorage.getItem('theme') || 'light';
+document.documentElement.setAttribute('data-theme', theme);
+updateThemeUI();
+
+function updateThemeUI() {
+  if (theme === 'dark') {
+    themeIcon.textContent = '☀️';
+    themeText.textContent = 'Light Mode';
+  } else {
+    themeIcon.textContent = '🌙';
+    themeText.textContent = 'Dark Mode';
+  }
+}
+
+themeToggle.addEventListener('click', () => {
+  theme = theme === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+  updateThemeUI();
+  themeToggle.classList.add('bounce');
+  setTimeout(() => themeToggle.classList.remove('bounce'), 500);
+});
+
+// Load tasks
+function loadTasks() {
+  const urlTasks = decodeURIComponent(location.hash.slice(1));
+  if (urlTasks) {
+    try {
+      tasks = JSON.parse(urlTasks);
+    } catch (e) {
+      tasks = [];
+    }
+  } else {
+    tasks = JSON.parse(localStorage.getItem('tinyChecklist') || '[]');
+  }
+}
+
+// Save tasks
+function saveTasks() {
+  localStorage.setItem('tinyChecklist', JSON.stringify(tasks));
+  const shareUrl = location.origin + location.pathname + '#' + encodeURIComponent(JSON.stringify(tasks));
+  shareDiv.textContent = tasks.length > 0 ? shareUrl : 'Generate a link by adding tasks...';
+}
+
+// Update task count and empty state
+function updateUI() {
+  taskCount.textContent = tasks.length;
+  emptyState.style.display = tasks.length === 0 ? 'block' : 'none';
+}
+
+// Check if all done for confetti
+function checkAllDone() {
+  if (tasks.length > 0 && tasks.every(t => t.checked)) {
+    triggerConfetti();
+  }
+}
+
+// Render tasks
+function renderTasks() {
+  tasksUL.innerHTML = '';
+  tasks.forEach((task, index) => {
+    const li = document.createElement('li');
+    li.className = task.checked ? 'checked' : '';
+    li.setAttribute('draggable', true);
+    
+    const taskTitle = task.text || task.title || 'Untitled Task';
+    const taskDesc = task.description || '';
+    
+    li.innerHTML = `
+      <div class="task-checkbox ${task.checked ? 'checked' : ''}"></div>
+      <div class="task-content">
+        <div class="task-title">${taskTitle}</div>
+        ${taskDesc ? `<div class="task-desc">${taskDesc}</div>` : ''}
+      </div>
+      <div class="task-actions">
+        <button class="delete-btn">&times;</button>
+      </div>
+    `;
+    
+    const checkbox = li.querySelector('.task-checkbox');
+    const taskContent = li.querySelector('.task-content');
+    const delBtn = li.querySelector('.delete-btn');
+
+    // Toggle task completion
+    const toggleTask = () => {
+      tasks[index].checked = !tasks[index].checked;
+      saveTasks(); 
+      renderTasks();
+      updateUI();
+      checkAllDone();
+    };
+
+    checkbox.addEventListener('click', toggleTask);
+    taskContent.addEventListener('click', toggleTask);
+
+    delBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      li.style.opacity = '0'; 
+      li.style.transform = 'translateX(100px)';
+      setTimeout(() => {
+        tasks.splice(index, 1); 
+        saveTasks(); 
+        renderTasks();
+        updateUI();
+      }, 300);
+    });
+
+    // Drag and drop
+    li.addEventListener('dragstart', (e) => {
+      draggedIndex = index; 
+      li.classList.add('dragging');
+    });
+    
+    li.addEventListener('dragend', () => {
+      li.classList.remove('dragging'); 
+      draggedIndex = null;
+    });
+    
+    li.addEventListener('dragover', e => e.preventDefault());
+    
+    li.addEventListener('drop', (e) => {
+      e.preventDefault();
+      if (draggedIndex === null || draggedIndex === index) return; 
+      const draggedTask = tasks[draggedIndex]; 
+      tasks.splice(draggedIndex, 1); 
+      tasks.splice(index, 0, draggedTask); 
+      saveTasks(); 
+      renderTasks();
+    });
+
+    tasksUL.appendChild(li);
+    setTimeout(() => li.classList.add('show'), 50 + index * 100);
+  });
+  updateUI();
+}
+
+// Add task
+addForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const taskName = taskInput.value.trim();
+  const taskDesc = taskDescription.value.trim();
+  if (!taskName) return;
+  
+  tasks.push({
+    text: taskName, 
+    description: taskDesc || null, 
+    checked: false
+  });
+  
+  saveTasks(); 
+  renderTasks();
+  taskInput.value = '';
+  taskDescription.value = '';
+});
+
+// Copy link
+copyBtn.addEventListener('click', () => {
+  if (tasks.length === 0) return;
+  
+  navigator.clipboard.writeText(shareDiv.textContent)
+    .then(() => {
+      copyBtn.classList.add('active');
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.classList.remove('active');
+        copyBtn.textContent = 'Copy Link';
+      }, 2000);
+    })
+    .catch(() => {
+      const textArea = document.createElement('textarea');
+      textArea.value = shareDiv.textContent;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      copyBtn.classList.add('active');
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.classList.remove('active');
+        copyBtn.textContent = 'Copy Link';
+      }, 2000);
+    });
+});
+
+// ===== Gradient Particle Background =====
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let w = canvas.width = window.innerWidth;
+let h = canvas.height = window.innerHeight;
+
+window.addEventListener('resize', () => {
+  w = canvas.width = window.innerWidth; 
+  h = canvas.height = window.innerHeight;
+});
+
+const particles = [];
+for (let i = 0; i < 30; i++) {
+  particles.push({
+    x: Math.random() * w,
+    y: Math.random() * h,
+    r: Math.random() * 2 + 1,
+    dx: (Math.random() - 0.5) * 0.3,
+    dy: (Math.random() - 0.5) * 0.3,
+    color: `hsla(${240 + Math.random() * 60}, 70%, 70%, 0.3)`
+  });
+}
+
+function animateParticles() {
+  ctx.clearRect(0, 0, w, h);
+  particles.forEach(p => {
+    p.x += p.dx; 
+    p.y += p.dy;
+    if (p.x < 0 || p.x > w) p.dx *= -1;
+    if (p.y < 0 || p.y > h) p.dy *= -1;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = p.color;
+    ctx.fill();
+  });
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ===== Confetti System =====
+const confettiCanvas = document.getElementById('confetti');
+const confettiCtx = confettiCanvas.getContext('2d');
+confettiCanvas.width = w; 
+confettiCanvas.height = h;
+
+let confettiPieces = [];
+
+function triggerConfetti(type = 'massive') {
+  confettiPieces = [];
+  const colors = ['#7C3AED', '#A78BFA', '#10B981', '#34D399', '#F59E0B', '#FBBF24', '#EF4444', '#F87171', '#EC4899', '#F472B6', '#06B6D4', '#67E8F9'];
+  
+  let particleCount, spawnPattern, velocityRange;
+  
+  switch(type) {
+    case 'massive':
+    default:
+      particleCount = 300; // Huge amount of particles
+      // Multiple spawn points for massive effect
+      spawnPattern = () => {
+        const patterns = [
+          { x: w/4, y: h/4 },
+          { x: 3*w/4, y: h/4 },
+          { x: w/2, y: h/2 },
+          { x: w/4, y: 3*h/4 },
+          { x: 3*w/4, y: 3*h/4 },
+          { x: Math.random() * w, y: 0 }, // Top edge
+          { x: 0, y: Math.random() * h }, // Left edge  
+          { x: w, y: Math.random() * h }, // Right edge
+        ];
+        return patterns[Math.floor(Math.random() * patterns.length)];
+      };
+      velocityRange = () => ({
+        dx: (Math.random() - 0.5) * 20, // Much faster horizontal
+        dy: (Math.random() - 0.5) * 20  // Much faster vertical
+      });
+      break;
+      
+    case 'explosion':
+      particleCount = 200;
+      spawnPattern = () => ({ x: w/2, y: h/2 });
+      velocityRange = () => ({
+        dx: (Math.random() - 0.5) * 15,
+        dy: (Math.random() - 0.5) * 15
+      });
+      break;
+      
+    case 'fountain':
+      particleCount = 120;
+      spawnPattern = () => ({ x: w/2 + (Math.random() - 0.5) * 100, y: h - 50 });
+      velocityRange = () => ({
+        dx: (Math.random() - 0.5) * 8,
+        dy: Math.random() * -15 - 8
+      });
+      break;
+      
+    case 'burst':
+      particleCount = 100;
+      spawnPattern = () => ({ x: Math.random() * w, y: Math.random() * h/2 });
+      velocityRange = () => ({
+        dx: (Math.random() - 0.5) * 6,
+        dy: Math.random() * -8 - 3
+      });
+  }
+  
+  for (let i = 0; i < particleCount; i++) {
+    const spawn = spawnPattern();
+    const velocity = velocityRange();
+    
+    confettiPieces.push({
+      x: spawn.x,
+      y: spawn.y,
+      r: Math.random() * 6 + 3, // Bigger particles
+      dx: velocity.dx,
+      dy: velocity.dy,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      gravity: 0.1 + Math.random() * 0.15, // Varied gravity
+      opacity: 1,
+      rotation: Math.random() * 360,
+      rotationSpeed: (Math.random() - 0.5) * 15, // Faster rotation
+      life: 1.0 // Full life
+    });
+  }
+  
+  // Add extra sparkles for massive effect
+  if (type === 'massive') {
+    for (let i = 0; i < 100; i++) {
+      confettiPieces.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 2 + 1,
+        dx: (Math.random() - 0.5) * 10,
+        dy: (Math.random() - 0.5) * 10,
+        color: '#FFD700', // Gold sparkles
+        gravity: 0.05,
+        opacity: 1,
+        rotation: 0,
+        rotationSpeed: (Math.random() - 0.5) * 20,
+        life: 1.0,
+        isSparkle: true
+      });
+    }
+  }
+  
+  animateConfetti();
+}
+
+function animateConfetti() {
+  confettiCtx.clearRect(0, 0, w, h);
+  
+  confettiPieces.forEach((p, i) => {
+    p.dy += p.gravity;
+    p.x += p.dx;
+    p.y += p.dy;
+    p.rotation += p.rotationSpeed;
+    p.life -= 0.006; // Slower fade
+    p.opacity = Math.max(0, p.life);
+    
+    // Add wind effect for massive confetti
+    if (p.life > 0.5) {
+      p.dx += (Math.random() - 0.5) * 0.2;
+    }
+    
+    confettiCtx.save();
+    confettiCtx.translate(p.x, p.y);
+    confettiCtx.rotate(p.rotation * Math.PI / 180);
+    confettiCtx.fillStyle = `rgba(${hexToRgb(p.color)}, ${p.opacity})`;
+    
+    if (p.isSparkle) {
+      // Draw sparkle
+      confettiCtx.beginPath();
+      for (let j = 0; j < 8; j++) {
+        const angle = (j * Math.PI) / 4;
+        const radius = j % 2 === 0 ? p.r : p.r / 2;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        if (j === 0) confettiCtx.moveTo(x, y);
+        else confettiCtx.lineTo(x, y);
+      }
+      confettiCtx.closePath();
+      confettiCtx.fill();
+    } else {
+      // Draw different shapes
+      if (i % 4 === 0) {
+        // Square
+        confettiCtx.fillRect(-p.r/2, -p.r/2, p.r, p.r);
+      } else if (i % 4 === 1) {
+        // Triangle
+        confettiCtx.beginPath();
+        confettiCtx.moveTo(0, -p.r);
+        confettiCtx.lineTo(-p.r, p.r);
+        confettiCtx.lineTo(p.r, p.r);
+        confettiCtx.closePath();
+        confettiCtx.fill();
+      } else if (i % 4 === 2) {
+        // Circle
+        confettiCtx.beginPath();
+        confettiCtx.arc(0, 0, p.r, 0, Math.PI * 2);
+        confettiCtx.fill();
+      } else {
+        // Diamond
+        confettiCtx.beginPath();
+        confettiCtx.moveTo(0, -p.r);
+        confettiCtx.lineTo(p.r, 0);
+        confettiCtx.lineTo(0, p.r);
+        confettiCtx.lineTo(-p.r, 0);
+        confettiCtx.closePath();
+        confettiCtx.fill();
+      }
+    }
+    
+    confettiCtx.restore();
+  });
+  
+  confettiPieces = confettiPieces.filter(p => p.opacity > 0 && p.y < h + 200 && p.x > -100 && p.x < w + 100);
+  if (confettiPieces.length > 0) {
+    requestAnimationFrame(animateConfetti);
+  }
+}
+
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  let bigint = parseInt(hex, 16);
+  let r = (bigint >> 16) & 255;
+  let g = (bigint >> 8) & 255;
+  let b = bigint & 255;
+  return `${r}, ${g}, ${b}`;
+}
+
+// Initialize
+loadTasks();
+renderTasks();
+saveTasks();
+</script>
+</body>
+<header class="top-bar">
+  <div class="brand">TinyChecklist Pro</div>
+  <div class="social">
+    <a href="https://x.com/varmava19295501" target="_blank" rel="noopener noreferrer">
+      <img src="https://abs.twimg.com/favicons/twitter.2.ico" alt="X" class="social-icon" />
+      <span>Founder</span>
+    </a>
+  </div>
+</header>
+</html>
