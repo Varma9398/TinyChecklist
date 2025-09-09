@@ -2,18 +2,12 @@
   "version": 2,
   "name": "tinychecklist-pro",
   "public": true,
-  "analytics": {
-    "enabled": true
-  },
   "builds": [
     { "src": "index.html", "use": "@vercel/static" }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "headers": {
-        "cache-control": "public, max-age=0, must-revalidate"
-      },
       "dest": "/index.html"
     }
   ]
